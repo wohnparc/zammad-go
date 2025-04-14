@@ -1,0 +1,6 @@
+# System files
+.DS_Store
+
+# IDEA files
+.idea/*
+!.idea/vcs.xml
