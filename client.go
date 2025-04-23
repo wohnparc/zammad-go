@@ -82,6 +82,9 @@ func (c *Client) NewRequest(method, url string, payload interface{}) (*http.Requ
 //}
 
 func (c *Client) send(req *http.Request, v interface{}) error {
+
+	fmt.Println("Final request URL:", req.URL.String())
+	
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return err
