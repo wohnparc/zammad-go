@@ -103,6 +103,7 @@ func (c *Client) send(req *http.Request, v interface{}) error {
 	} else {
 		fmt.Println(prettyJSON.String())
 	}
+	fmt.Printf("Statuscode:  %d", resp.StatusCode)
 	fmt.Println("========================")
 
 	// Body für spätere Verarbeitung wiederherstellen
