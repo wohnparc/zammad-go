@@ -83,7 +83,11 @@ func (c *Client) NewRequest(method, url string, payload interface{}) (*http.Requ
 
 func (c *Client) send(req *http.Request, v interface{}) error {
 
-	fmt.Println("Final request URL:", req.URL.String())
+	fmt.Println("Request method:", req.Method)
+	fmt.Println("Request URL full:", req.URL.String())
+	fmt.Println("Host:", req.URL.Host)
+	fmt.Println("Path:", req.URL.Path)
+	fmt.Println("RawQuery:", req.URL.RawQuery)
 	
 	resp, err := c.Client.Do(req)
 	if err != nil {
