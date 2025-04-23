@@ -169,19 +169,22 @@ func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) (
 		AssetTicket map[int]Ticket `json:"ticket"`
 	}
 
-	type TickSearch struct {
-		Tickets []int `json:"tickets"`
-		Count   int   `json:"tickets_count"`
-		Assets  `json:"assets"`
+	type TicketSearchResponse struct {
+		Data []Ticket `json:"data"`
+		Meta struct {
+			Total   int `json:"total"`
+			Page    int `json:"page"`
+			PerPage int `json:"per_page"`
+		} `json:"meta"`
 	}
 
-	var ticksearch TickSearch
+	var ticksearch TicketSearchResponse
 	req, err := c.NewRequest(
 		http.MethodGet,
 		fmt.Sprintf(
 			"%s%s",
 			c.Url,
-			fmt.Sprintf("/api/v1/tickets/search?query=%s&page=%d&per_page=%d&",
+			fmt.Sprintf("/api/v1/search?index=ticket?query=%s&page=%d&per_page=%d&",
 				url.QueryEscape(fmt.Sprintf("updated_at:>%s", modifiedAfter.Format(time.RFC3339))),
 				page,
 				limit,
@@ -206,9 +209,9 @@ func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) (
 		return nil, err
 	}
 
-	tickets := make([]Ticket, ticksearch.Count)
+	tickets := make([]Ticket, len(ticksearch.Data))
 	i := 0
-	for _, t1 := range ticksearch.Assets.AssetTicket {
+	for _, t1 := range ticksearch.Data {
 		tickets[i] = t1
 		i++
 	}
