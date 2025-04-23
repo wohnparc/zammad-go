@@ -165,55 +165,22 @@ func (c *Client) TicketDelete(ticketID int) error {
 }
 
 func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) ([]Ticket, error) {
-	type Assets struct {
-		AssetTicket map[int]Ticket `json:"ticket"`
-	}
 
-	type TicketSearchResponse struct {
-		Data []Ticket `json:"data"`
-		Meta struct {
-			Total   int `json:"total"`
-			Page    int `json:"page"`
-			PerPage int `json:"per_page"`
-		} `json:"meta"`
-	}
+	query := url.QueryEscape(fmt.Sprintf("updated_at:>%s", modifiedAfter.Format("2006-01-02")))
 
-	var ticksearch TicketSearchResponse
-	req, err := c.NewRequest(
-		http.MethodGet,
-		fmt.Sprintf(
-			"%s%s",
-			c.Url,
-			fmt.Sprintf("/api/v1/search?query=%s&page=%d&limit=%d",
-				url.QueryEscape(fmt.Sprintf("updated_at:>%s", modifiedAfter.Format(time.RFC3339))),
-				page,
-				limit,
-			),
-		),
+	req, err := c.NewRequest(http.MethodGet,
+		fmt.Sprintf("%s/api/v1/tickets?query=%s&page=%d&limit=%d", c.Url, query, page, limit),
 		nil,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	//var result []Ticket
-	//if err = c.sendWithAuth(req, &result); err != nil {
-	//	return nil, err
-	//}
-	//
-	//return result, nil
+	var tickets []Ticket
 
-	//var result []Ticket
-	if err = c.sendWithAuth(req, &ticksearch); err != nil {
+	if err := c.sendWithAuth(req, &tickets); err != nil {
 		return nil, err
 	}
 
-	tickets := make([]Ticket, len(ticksearch.Data))
-	i := 0
-	for _, t1 := range ticksearch.Data {
-		tickets[i] = t1
-		i++
-	}
 	return tickets, nil
 }

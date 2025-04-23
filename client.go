@@ -44,99 +44,39 @@ func (c *Client) NewRequest(method, url string, payload interface{}) (*http.Requ
 
 // send makes a request to the API, the response body will be unmarshaled into v, or if v is an io.Writer, the response
 // will be written to it without decoding. This can be helpful when debugging.
-//func (c *Client) send(req *http.Request, v interface{}) error {
-//	resp, err := c.Client.Do(req)
-//	if err != nil {
-//		return err
-//	}
-//	defer resp.Body.Close()
-//
-//	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-//		errResp := &ErrorResponse{}
-//		data, err := io.ReadAll(resp.Body)
-//
-//		if err == nil && len(data) > 0 {
-//			err = json.Unmarshal(data, errResp)
-//			if err != nil {
-//				return err
-//			}
-//		}
-//
-//		return errResp
-//	}
-//
-//	if v == nil {
-//		return nil
-//	}
-//
-//	if w, ok := v.(io.Writer); ok {
-//		_, err = io.Copy(w, resp.Body)
-//		if err != nil {
-//			return err
-//		}
-//		return nil
-//	}
-//
-//
-//	return json.NewDecoder(resp.Body).Decode(v)
-//}
-
 func (c *Client) send(req *http.Request, v interface{}) error {
-
-	fmt.Println("Request method:", req.Method)
-	fmt.Println("Request URL full:", req.URL.String())
-	fmt.Println("Host:", req.URL.Host)
-	fmt.Println("Path:", req.URL.Path)
-	fmt.Println("RawQuery:", req.URL.RawQuery)
-	
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	// Response-Body lesen
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	// 🪵 Pretty-Print JSON zur Debug-Ausgabe
-	fmt.Println("==== JSON Response ====")
-	var prettyJSON bytes.Buffer
-	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
-		fmt.Println("❌ Kein gültiges JSON – Rohdaten:")
-		fmt.Println(string(data))
-	} else {
-		fmt.Println(prettyJSON.String())
-	}
-	fmt.Printf("Statuscode:  %d", resp.StatusCode)
-	fmt.Println("========================")
-
-	// Body für spätere Verarbeitung wiederherstellen
-	resp.Body = io.NopCloser(bytes.NewBuffer(data))
-
-	// Fehlerstatus behandeln
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		errResp := &ErrorResponse{}
-		if len(data) > 0 {
-			if err := json.Unmarshal(data, errResp); err != nil {
+		data, err := io.ReadAll(resp.Body)
+
+		if err == nil && len(data) > 0 {
+			err = json.Unmarshal(data, errResp)
+			if err != nil {
 				return err
 			}
 		}
+
 		return errResp
 	}
 
-	// Optionales Schreiben in io.Writer
 	if v == nil {
 		return nil
 	}
+
 	if w, ok := v.(io.Writer); ok {
 		_, err = io.Copy(w, resp.Body)
-		return err
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
-	// Normale JSON-Dekodierung
 	return json.NewDecoder(resp.Body).Decode(v)
 }
 
