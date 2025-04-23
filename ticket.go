@@ -163,3 +163,32 @@ func (c *Client) TicketDelete(ticketID int) error {
 
 	return nil
 }
+
+func (c *Client) TicketUpdatedAt(query string, updatedAt time.Time, page, limit int) ([]Ticket, error) {
+
+	req, err := c.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf(
+			"%s%s",
+			c.Url,
+			fmt.Sprintf("/api/v1/tickets/search?query=%s&page=%d&per_page=%d&updated_at:>%s",
+				url.QueryEscape(query),
+				page,
+				limit,
+				updatedAt.Format(time.RFC3339),
+			),
+		),
+		nil,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []Ticket
+	if err = c.sendWithAuth(req, &result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

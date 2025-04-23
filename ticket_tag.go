@@ -17,8 +17,8 @@ type TicketTag struct {
 	Name     string `json:"item"`
 	Object   object `json:"object"`
 }
- 
-func (c *Client) AddTagToTicket(ticketID int, tag string) error {
+
+func (c *Client) TicketAddTag(ticketID int, tag string) error {
 
 	t := TicketTag{
 		TicketID: ticketID,
