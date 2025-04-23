@@ -83,7 +83,7 @@ type Preferences struct {
 }
 
 type Asset struct {
-	Tickets []SearchTicket `json:"Tickets"`
+	Tickets map[int]SearchTicket `json:"Ticket"`
 }
 
 type TicketSearchResponse struct {

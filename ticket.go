@@ -179,5 +179,10 @@ func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) (
 		return nil, err
 	}
 
-	return resp.Assets.Tickets, nil
+	var tickets []SearchTicket
+	for id := range resp.Assets.Tickets {
+		tickets = append(tickets, resp.Assets.Tickets[id])
+	}
+
+	return tickets, nil
 }
