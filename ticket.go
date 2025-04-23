@@ -111,7 +111,7 @@ func (c *Client) TicketShow(ticketID int) (Ticket, error) {
 
 // TicketCreate is used to create a ticket. For this you need to assemble a bare-bones Ticket:
 //
-//	ticket := Ticket{
+//	ticket := Tickets{
 //		Title:      "your subject",
 //		Group:      "your group",
 //		CustomerID: 10, // your customer ID
@@ -164,23 +164,20 @@ func (c *Client) TicketDelete(ticketID int) error {
 	return nil
 }
 
-func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) ([]Ticket, error) {
+func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) ([]SearchTicket, error) {
 
 	query := url.QueryEscape(fmt.Sprintf("updated_at:>%s", modifiedAfter.Format("2006-01-02")))
+	fullURL := fmt.Sprintf("%s/api/v1/search?query=%s&page=%d&limit=%d", c.Url, query, page, limit)
 
-	req, err := c.NewRequest(http.MethodGet,
-		fmt.Sprintf("%s/api/v1/tickets?query=%s&page=%d&limit=%d", c.Url, query, page, limit),
-		nil,
-	)
+	req, err := c.NewRequest(http.MethodGet, fullURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var tickets []Ticket
-
-	if err := c.sendWithAuth(req, &tickets); err != nil {
+	var resp TicketSearchResponse
+	if err := c.sendWithAuth(req, &resp); err != nil {
 		return nil, err
 	}
 
-	return tickets, nil
+	return resp.Assets.Tickets, nil
 }

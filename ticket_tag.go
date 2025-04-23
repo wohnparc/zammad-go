@@ -9,7 +9,7 @@ type object string
 
 const (
 	// ObjectTicket is the object type for tickets.
-	ObjectTicket object = "Ticket"
+	ObjectTicket object = "Tickets"
 )
 
 type TicketTag struct {
@@ -42,7 +42,7 @@ func (c *Client) TicketTagByTicket(ticketID int) ([]Tag, error) {
 		Tags []string
 	}
 
-	req, err := c.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tags?object=Ticket&o_id=%d", ticketID)), nil)
+	req, err := c.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tags?object=Tickets&o_id=%d", ticketID)), nil)
 	if err != nil {
 		return nil, err
 	}
