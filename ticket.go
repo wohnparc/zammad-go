@@ -184,7 +184,7 @@ func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) (
 		fmt.Sprintf(
 			"%s%s",
 			c.Url,
-			fmt.Sprintf("/api/v1/search?index=ticket&query=%s&page=%d&per_page=%d&",
+			fmt.Sprintf("/api/v1/search?index=ticket&query=%s&page=%d&per_page=%d",
 				url.QueryEscape(fmt.Sprintf("updated_at:>%s", modifiedAfter.Format(time.RFC3339))),
 				page,
 				limit,
