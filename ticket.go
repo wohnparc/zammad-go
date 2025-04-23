@@ -165,7 +165,17 @@ func (c *Client) TicketDelete(ticketID int) error {
 }
 
 func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) ([]Ticket, error) {
+	type Assets struct {
+		AssetTicket map[int]Ticket `json:"ticket"`
+	}
 
+	type TickSearch struct {
+		Tickets []int `json:"tickets"`
+		Count   int   `json:"tickets_count"`
+		Assets  `json:"assets"`
+	}
+
+	var ticksearch TickSearch
 	req, err := c.NewRequest(
 		http.MethodGet,
 		fmt.Sprintf(
@@ -184,10 +194,23 @@ func (c *Client) TicketModifiedAfter(modifiedAfter time.Time, page, limit int) (
 		return nil, err
 	}
 
-	var result []Ticket
-	if err = c.sendWithAuth(req, &result); err != nil {
+	//var result []Ticket
+	//if err = c.sendWithAuth(req, &result); err != nil {
+	//	return nil, err
+	//}
+	//
+	//return result, nil
+
+	//var result []Ticket
+	if err = c.sendWithAuth(req, &ticksearch); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	tickets := make([]Ticket, ticksearch.Count)
+	i := 0
+	for _, t1 := range ticksearch.Assets.AssetTicket {
+		tickets[i] = t1
+		i++
+	}
+	return tickets, nil
 }
