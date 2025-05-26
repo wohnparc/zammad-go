@@ -17,7 +17,7 @@ type TicketTag struct {
 	Name     string `json:"item"`
 	Object   object `json:"object"`
 }
- 
+
 func (c *Client) AddTagToTicket(ticketID int, tag string) error {
 
 	t := TicketTag{
@@ -26,6 +26,25 @@ func (c *Client) AddTagToTicket(ticketID int, tag string) error {
 		Object:   ObjectTicket,
 	}
 	req, err := c.NewRequest(http.MethodPost, fmt.Sprintf("%s%s", c.Url, "/api/v1/tags/add"), t)
+	if err != nil {
+		return err
+	}
+
+	if err = c.sendWithAuth(req, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) RemoveTagFromTicket(ticketID int, tag string) error {
+
+	t := TicketTag{
+		TicketID: ticketID,
+		Name:     tag,
+		Object:   ObjectTicket,
+	}
+	req, err := c.NewRequest(http.MethodDelete, fmt.Sprintf("%s%s", c.Url, "/api/v1/tags/remove"), t)
 	if err != nil {
 		return err
 	}
