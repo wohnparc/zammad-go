@@ -3,11 +3,14 @@ package zammad
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 )
+
+var ErrNotAuthorized = errors.New("not authorized")
 
 // New returns a new Zammad client initialized with an http client. Authentication need to be set seperately. The http
 // client uses a timeout of 5 seconds.
@@ -52,9 +55,12 @@ func (c *Client) send(req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		errResp := &ErrorResponse{
-			HttpStatusCode: resp.StatusCode,
+
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			return ErrNotAuthorized
 		}
+
+		errResp := &ErrorResponse{}
 		data, err := io.ReadAll(resp.Body)
 
 		if err == nil && len(data) > 0 {
