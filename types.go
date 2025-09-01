@@ -26,6 +26,7 @@ type (
 	ErrorResponse struct {
 		Description      string `json:"error"`
 		DescriptionHuman string `json:"error_human"`
+		HttpStatusCode   int    `json:"http_status_code"`
 	}
 
 	// Doer is an interface that allows mimicking a *http.Client.

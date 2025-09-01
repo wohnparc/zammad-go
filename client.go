@@ -52,7 +52,9 @@ func (c *Client) send(req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		errResp := &ErrorResponse{}
+		errResp := &ErrorResponse{
+			HttpStatusCode: resp.StatusCode,
+		}
 		data, err := io.ReadAll(resp.Body)
 
 		if err == nil && len(data) > 0 {
