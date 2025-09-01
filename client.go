@@ -55,11 +55,9 @@ func (c *Client) send(req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-
 		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
 			return ErrNotAuthorized
 		}
-
 		errResp := &ErrorResponse{}
 		data, err := io.ReadAll(resp.Body)
 
