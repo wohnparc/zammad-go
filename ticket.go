@@ -65,39 +65,31 @@ func (c *Client) TicketListWithOptions(ro RequestOptions) ([]Ticket, error) {
 
 // TicketSearch searches for tickets. See https://docs.zammad.org/en/latest/api/ticket/index.html#search.
 func (c *Client) TicketSearch(query string, limit int, page int) ([]Ticket, error) {
-	type Assets struct {
-		AssetTicket map[int]Ticket `json:"ticket"`
-	}
 
-	type TickSearch struct {
-		Tickets []int `json:"tickets"`
-		Count   int   `json:"tickets_count"`
-		Assets  `json:"assets"`
-	}
-
-	var ticksearch TickSearch
-	req, err := c.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/search?query=%s&limit=%d&page=%d", url.QueryEscape(query), limit, page)), nil)
+	var tickets []Ticket
+	req, err := c.NewRequest(
+		http.MethodGet, fmt.Sprintf(
+			"%s%s", c.Url,
+			fmt.Sprintf("/api/v1/tickets/search?query=%s&limit=%d&page=%d", url.QueryEscape(query), limit, page),
+		), nil,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = c.sendWithAuth(req, &ticksearch); err != nil {
+	if err = c.sendWithAuth(req, &tickets); err != nil {
 		return nil, err
 	}
 
-	tickets := make([]Ticket, ticksearch.Count)
-	i := 0
-	for _, t1 := range ticksearch.Assets.AssetTicket {
-		tickets[i] = t1
-		i++
-	}
 	return tickets, nil
 }
 
 func (c *Client) TicketShow(ticketID int) (Ticket, error) {
 	var ticket Ticket
 
-	req, err := c.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/%d", ticketID)), nil)
+	req, err := c.NewRequest(
+		http.MethodGet, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/%d", ticketID)), nil,
+	)
 	if err != nil {
 		return ticket, err
 	}
@@ -152,7 +144,9 @@ func (c *Client) TicketUpdate(ticketID int, t Ticket) (Ticket, error) {
 
 func (c *Client) TicketDelete(ticketID int) error {
 
-	req, err := c.NewRequest(http.MethodDelete, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/%d", ticketID)), nil)
+	req, err := c.NewRequest(
+		http.MethodDelete, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/%d", ticketID)), nil,
+	)
 	if err != nil {
 		return err
 	}
