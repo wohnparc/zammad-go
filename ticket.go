@@ -9,8 +9,8 @@ import (
 
 // Ticket is a zammad ticket.
 type Ticket struct {
-	Title                 string        `json:"title"`
-	Group                 string        `json:"group"`
+	Title                 string        `json:"title,omitempty"`
+	Group                 string        `json:"group,omitempty"`
 	OwnerID               int           `json:"owner_id,omitempty"`
 	ID                    int           `json:"id,omitempty"`
 	Article               TicketArticle `json:"article,omitempty"`
@@ -18,7 +18,7 @@ type Ticket struct {
 	PriorityID            int           `json:"priority_id,omitempty"`
 	StateID               int           `json:"state_id,omitempty"`
 	State                 string        `json:"state,omitempty"`
-	OrganizationID        int           `json:"organization_id"`
+	OrganizationID        int           `json:"organization_id,omitempty"`
 	Number                string        `json:"number,omitempty"`
 	Customer              string        `json:"customer,omitempty"`
 	CustomerID            int           `json:"customer_id,omitempty"`
