@@ -142,6 +142,18 @@ func (c *Client) TicketUpdate(ticketID int, t Ticket) (Ticket, error) {
 	return ticket, nil
 }
 
+// TicketUpdateFields updates arbitrary top-level fields on a ticket.
+// This is useful for setting custom object attributes that are not part of the Ticket struct.
+// Fields are sent as-is in the JSON body of the PUT request.
+func (c *Client) TicketUpdateFields(ticketID int, fields map[string]any) error {
+	req, err := c.NewRequest(http.MethodPut, fmt.Sprintf("%s%s", c.Url, fmt.Sprintf("/api/v1/tickets/%d", ticketID)), fields)
+	if err != nil {
+		return err
+	}
+
+	return c.sendWithAuth(req, nil)
+}
+
 func (c *Client) TicketDelete(ticketID int) error {
 
 	req, err := c.NewRequest(
