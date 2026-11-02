@@ -2,6 +2,8 @@ package zammad
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -74,7 +76,7 @@ func TestTicket(t *testing.T) {
 				}
 				outerr = err
 			case "TicketSearch":
-				ts, err := z.TicketSearch("does-not-matter", 0)
+				ts, err := z.TicketSearch("does-not-matter", 0, 1)
 				if len(ts) != tt.Expect {
 					t.Errorf("expected %d tickets, got %d", tt.Expect, len(ts))
 				}
@@ -112,4 +114,82 @@ func TestTicketCreate(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("%v\n", ticket1)
+}
+
+func TestTicketCreatePayload(t *testing.T) {
+	ticket := Ticket{
+		Title:      "Workflow Test",
+		CustomerID: 4,
+		Tags:       "workflow",
+		Article: TicketArticle{
+			Subject:     "Testing TicketCreate",
+			Body:        "Testing tags and attachments",
+			ContentType: "text/plain",
+			Type:        "note",
+			Internal:    false,
+			Attachments: []TicketAttachment{
+				{
+					Filename: "image.png",
+					Data:     "BASE64_CONTENT",
+					MimeType: "image/png",
+					Size:     6814,
+				},
+			},
+		},
+	}
+
+	payload, err := json.Marshal(ticket)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(string(payload))
+}
+
+func TestTicketCreateWithTagsAndAttachments(t *testing.T) {
+	z := testZammad()
+	if z == nil {
+		t.Skip("Zammad instance or token not configured")
+	}
+
+	content, err := os.ReadFile("./testdata/image.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ticket := Ticket{
+		Title:      "SDK TicketCreate Integration Test",
+		GroupID:    1,
+		OwnerID:    1,
+		PriorityID: 2,
+		StateID:    1,
+		CustomerID: 4,
+		Tags:       "workflow-sdk",
+		Article: TicketArticle{
+			Subject:     "Testing TicketCreate",
+			Body:        "Testing tags and attachments using Go SDK",
+			ContentType: "text/plain",
+			Type:        "note",
+			Internal:    false,
+			Attachments: []TicketAttachment{
+				{
+					Filename: "image.png",
+					Data:     base64.StdEncoding.EncodeToString(content),
+					MimeType: "image/png",
+					Size:     len(content),
+				},
+			},
+		},
+	}
+
+	result, err := z.TicketCreate(ticket)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.ID == 0 {
+		t.Fatal("expected ticket ID, got zero")
+	}
+
+	t.Logf("Ticket created: ID=%d Number=%s", result.ID, result.Number)
 }

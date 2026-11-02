@@ -22,6 +22,7 @@ type Ticket struct {
 	Number                string        `json:"number,omitempty"`
 	Customer              string        `json:"customer,omitempty"`
 	CustomerID            int           `json:"customer_id,omitempty"`
+	Tags                  string        `json:"tags,omitempty"`
 	LastContactAt         time.Time     `json:"last_contact_at,omitempty"`
 	LastContactAgentAt    time.Time     `json:"last_contact_agent_at,omitempty"`
 	LastContactCustomerAt time.Time     `json:"last_contact_customer_at,omitempty"`
